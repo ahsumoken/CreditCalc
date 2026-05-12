@@ -9,30 +9,29 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      --kpn-green: #00c300;
-      --kpn-green-dark: #009900;
-      --kpn-green-light: #e6f9e6;
-      --kpn-white: #ffffff;
-      --kpn-grey-bg: #f5f5f5;
-      --kpn-grey-border: #d9d9d9;
-      --kpn-grey-text: #666666;
-      --kpn-black: #1a1a1a;
-      --kpn-red: #e2001a;
+      ---green: #00c300;
+      ---green-dark: #009900;
+      ---green-light: #e6f9e6;
+      ---white: #ffffff;
+      ---grey-bg: #f5f5f5;
+      ---grey-border: #d9d9d9;
+      ---grey-text: #666666;
+      ---black: #1a1a1a;
+      ---red: #e2001a;
     }
 
     body {
       font-family: 'Source Sans 3', sans-serif;
-      background: var(--kpn-grey-bg);
-      color: var(--kpn-black);
+      background: var(--grey-bg);
+      color: var(---black);
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
-    /* KPN Top bar */
     .topbar {
-      background: var(--kpn-white);
-      border-bottom: 3px solid var(--kpn-green);
+      background: var(---white);
+      border-bottom: 3px solid var(---green);
       padding: 0 2rem;
       height: 64px;
       display: flex;
@@ -65,26 +64,26 @@
     .page-title h1 {
       font-size: 1.75rem;
       font-weight: 700;
-      color: var(--kpn-black);
+      color: var(--black);
       line-height: 1.2;
     }
 
     .page-title p {
       margin-top: 0.35rem;
       font-size: 0.95rem;
-      color: var(--kpn-grey-text);
+      color: var(--grey-text);
     }
 
     /* Card */
     .card {
-      background: var(--kpn-white);
+      background: var(---white);
       border-radius: 8px;
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
       overflow: hidden;
     }
 
     .card-header {
-      background: var(--kpn-green);
+      background: var(---green);
       padding: 1rem 1.5rem;
       display: flex;
       align-items: center;
@@ -130,26 +129,26 @@
     .field label {
       font-size: 0.8rem;
       font-weight: 600;
-      color: var(--kpn-black);
+      color: var(---black);
       text-transform: uppercase;
       letter-spacing: 0.05em;
     }
 
     .field input {
       width: 100%;
-      border: 1.5px solid var(--kpn-grey-border);
+      border: 1.5px solid var(---grey-border);
       border-radius: 4px;
       padding: 0.65rem 0.875rem;
       font-family: 'Source Sans 3', sans-serif;
       font-size: 0.95rem;
-      color: var(--kpn-black);
-      background: var(--kpn-white);
+      color: var(---black);
+      background: var(---white);
       outline: none;
       transition: border-color 0.15s, box-shadow 0.15s;
     }
 
     .field input:focus {
-      border-color: var(--kpn-green);
+      border-color: var(---green);
       box-shadow: 0 0 0 3px rgba(0,195,0,0.15);
     }
 
