@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Creditbedrag Calculator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --kpn-green: #00c300;
+      --kpn-green-dark: #009900;
+      --kpn-green-light: #e6f9e6;
+      --kpn-white: #ffffff;
+      --kpn-grey-bg: #f5f5f5;
+      --kpn-grey-border: #d9d9d9;
+      --kpn-grey-text: #666666;
+      --kpn-black: #1a1a1a;
+      --kpn-red: #e2001a;
+    }
+
+    body {
+      font-family: 'Source Sans 3', sans-serif;
+      background: var(--kpn-grey-bg);
+      color: var(--kpn-black);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* KPN Top bar */
+    .topbar {
+      background: var(--kpn-white);
+      border-bottom: 3px solid var(--kpn-green);
+      padding: 0 2rem;
+      height: 64px;
+      display: flex;
+      align-items: center;
+    }
+
+    .logo-mark {
+      width: 48px;
+      height: 32px;
+    }
+
+    /* Main content */
+    .main {
+      flex: 1;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 2.5rem 1rem 3rem;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+    }
+
+    .page-title {
+      margin-bottom: 1.5rem;
+    }
+
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--kpn-black);
+      line-height: 1.2;
+    }
+
+    .page-title p {
+      margin-top: 0.35rem;
+      font-size: 0.95rem;
+      color: var(--kpn-grey-text);
+    }
+
+    /* Card */
+    .card {
+      background: var(--kpn-white);
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    .card-header {
+      background: var(--kpn-green);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .card-header svg {
+      width: 20px;
+      height: 20px;
+      fill: white;
+      flex-shrink: 0;
+    }
+
+    .card-header span {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: white;
+      letter-spacing: 0.01em;
+    }
+
+    .card-body {
+      padding: 1.75rem 1.5rem;
+    }
+
+    /* Fields */
+    .field-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-bottom: 1.25rem;
+    }
+
+    @media (max-width: 420px) {
+      .field-group { grid-template-columns: 1fr; }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .field label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--kpn-black);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .field input {
+      width: 100%;
+      border: 1.5px solid var(--kpn-grey-border);
+      border-radius: 4px;
+      padding: 0.65rem 0.875rem;
+      font-family: 'Source Sans 3', sans-serif;
+      font-size: 0.95rem;
+      color: var(--kpn-black);
+      background: var(--kpn-white);
+      outline: none;
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+
+    .field input:focus {
+      border-color: var(--kpn-green);
+      box-shadow: 0 0 0 3px rgba(0,195,0,0.15);
+    }
+
+    .field input:hover:not(:focus) {
+      border-color: #aaa;
+    }
+
+    .field input[type="date"]::-webkit-calendar-picker-indicator {
+      cursor: pointer;
+      opacity: 0.6;
+    }
+
+    .divider {
+      height: 1px;
+      background: var(--kpn-grey-border);
+      margin: 1.25rem 0;
+    }
+
+    .amount-wrap {
+      position: relative;
+    }
+
+    .amount-wrap .euro {
+      position: absolute;
+      left: 0.875rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--kpn-grey-text);
+      font-size: 0.95rem;
+      pointer-events: none;
+      font-weight: 600;
+    }
+
+    .amount-wrap input {
+      padding-left: 1.75rem;
+    }
+
+    /* Error */
+    .error-msg {
+      font-size: 0.8rem;
+      color: var(--kpn-red);
+      margin-top: 0.3rem;
+      display: none;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    .error-msg.visible { display: flex; }
+
+    .error-msg::before {
+      content: '!';
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 14px;
+      height: 14px;
+      background: var(--kpn-red);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.65rem;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* Result */
+    .result-box {
+      display: none;
+      margin-top: 1.5rem;
+      border-radius: 6px;
+      overflow: hidden;
+      border: 1.5px solid var(--kpn-green);
+    }
+
+    .result-box.visible {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-top {
+      background: var(--kpn-green-light);
+      padding: 1.1rem 1.25rem;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+    }
+
+    .result-top .label {
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--kpn-green-dark);
+    }
+
+    .result-top .amount {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--kpn-green-dark);
+      letter-spacing: -0.02em;
+    }
+
+    .result-breakdown {
+      background: var(--kpn-white);
+      padding: 0.75rem 1.25rem;
+    }
+
+    .breakdown-title {
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--kpn-grey-text);
+      margin-bottom: 0.5rem;
+    }
+
+    .breakdown-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.35rem 0;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 0.875rem;
+    }
+
+    .breakdown-row:last-child { border-bottom: none; }
+
+    .breakdown-row .month-name {
+      color: var(--kpn-black);
+      text-transform: capitalize;
+      flex: 1;
+    }
+
+    .breakdown-row .month-days {
+      color: var(--kpn-grey-text);
+      font-size: 0.8rem;
+      margin: 0 1rem;
+    }
+
+    .breakdown-row .month-amt {
+      font-weight: 600;
+      color: var(--kpn-black);
+    }
+
+    /* Footer */
+    .page-footer {
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.78rem;
+      color: var(--kpn-grey-text);
+      border-top: 1px solid var(--kpn-grey-border);
+      background: var(--kpn-white);
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <svg class="logo-mark" viewBox="0 0 120 80" xmlns="http://www.w3.org/2000/svg">
+      <rect width="120" height="80" rx="4" fill="#00c300"/>
+      <text x="50%" y="56%" dominant-baseline="middle" text-anchor="middle"
+            font-family="Arial, sans-serif" font-weight="900" font-size="38"
+            fill="white" letter-spacing="-1">KPN</text>
+    </svg>
+  </header>
+
+  <main class="main">
+    <div class="container">
+
+      <div class="page-title">
+        <h1>Creditbedrag berekenen</h1>
+        <p>Bereken het te crediteren bedrag op basis van werkelijke dagen per maand.</p>
+      </div>
+
+      <div class="card">
+        <div class="card-header">
+          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19 3h-1V1h-2v2H8V1H6v2H5C3.9 3 3 3.9 3 5v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM7 10h5v5H7z"/>
+          </svg>
+          <span>Voer de gegevens in</span>
+        </div>
+
+        <div class="card-body">
+
+          <div class="field-group">
+            <div class="field">
+              <label>Startdatum</label>
+              <input type="date" id="startDate">
+            </div>
+            <div class="field">
+              <label>Einddatum</label>
+              <input type="date" id="endDate">
+            </div>
+          </div>
+          <div class="error-msg" id="dateError">Einddatum moet na de startdatum liggen.</div>
+
+          <div class="divider"></div>
+
+          <div class="field">
+            <label>Bedrag per maand</label>
+            <div class="amount-wrap">
+              <span class="euro">€</span>
+              <input type="number" id="monthlyAmount" placeholder="0,00" min="0" step="0.01">
+            </div>
+          </div>
+
+          <div class="result-box" id="resultBox">
+            <div class="result-top">
+              <span class="label">Totaal creditbedrag</span>
+              <span class="amount" id="resultAmount">€ 0,00</span>
+            </div>
+            <div class="result-breakdown">
+              <div class="breakdown-title">Specificatie per maand</div>
+              <div id="resultDetail"></div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="page-footer">
+    Berekend op basis van werkelijke dagen per kalendermaand
+  </footer>
+
+  <script>
+    const startInput   = document.getElementById('startDate');
+    const endInput     = document.getElementById('endDate');
+    const amountInput  = document.getElementById('monthlyAmount');
+    const resultBox    = document.getElementById('resultBox');
+    const resultAmt    = document.getElementById('resultAmount');
+    const resultDetail = document.getElementById('resultDetail');
+    const dateError    = document.getElementById('dateError');
+
+    function daysInMonth(year, month) {
+      return new Date(year, month + 1, 0).getDate();
+    }
+
+    function fmt(n) {
+      return '€\u00a0' + n.toLocaleString('nl-NL', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+      });
+    }
+
+    function calculate() {
+      const start  = new Date(startInput.value);
+      const end    = new Date(endInput.value);
+      const amount = parseFloat(amountInput.value);
+
+      dateError.classList.remove('visible');
+      resultBox.classList.remove('visible');
+
+      if (!startInput.value || !endInput.value || isNaN(amount) || amount <= 0) return;
+
+      if (end <= start) {
+        dateError.classList.add('visible');
+        return;
+      }
+
+      let total = 0;
+      const breakdown = [];
+
+      let cur = new Date(start.getFullYear(), start.getMonth(), 1);
+
+      while (cur <= end) {
+        const year      = cur.getFullYear();
+        const month     = cur.getMonth();
+        const totalDays = daysInMonth(year, month);
+
+        const rangeStart = (year === start.getFullYear() && month === start.getMonth())
+          ? start.getDate() : 1;
+
+        const lastOfMonth = new Date(year, month + 1, 0);
+        const rangeEnd = (end < lastOfMonth) ? end.getDate() : totalDays;
+
+        const daysUsed = rangeEnd - rangeStart + 1;
+
+        if (daysUsed > 0) {
+          const dailyRate  = amount / totalDays;
+          const monthTotal = dailyRate * daysUsed;
+          total += monthTotal;
+
+          const monthName = cur.toLocaleString('nl-NL', { month: 'long', year: 'numeric' });
+          breakdown.push({ monthName, daysUsed, totalDays, monthTotal });
+        }
+
+        cur = new Date(year, month + 1, 1);
+      }
+
+      resultAmt.textContent = fmt(total);
+
+      resultDetail.innerHTML = breakdown.map(b => `
+        <div class="breakdown-row">
+          <span class="month-name">${b.monthName}</span>
+          <span class="month-days">${b.daysUsed} / ${b.totalDays} dagen</span>
+          <span class="month-amt">${fmt(b.monthTotal)}</span>
+        </div>
+      `).join('');
+
+      resultBox.classList.add('visible');
+    }
+
+    startInput.addEventListener('change', calculate);
+    endInput.addEventListener('change', calculate);
+    amountInput.addEventListener('input', calculate);
+  </script>
+
+</body>
+</html>
